@@ -325,6 +325,54 @@ const UI = (() => {
   function recordBackup() {
     localStorage.setItem(BACKUP_KEY, new Date().toISOString());
     updateLastBackupLabel();
+    updateBackupReminder();
+  }
+
+  async function updateBackupReminder() {
+    const banner = document.getElementById('backupReminder');
+    if (!banner || typeof DB === 'undefined') return;
+
+    try {
+      const notes = await DB.Notes.getAll();
+      if (!notes.length) {
+        banner.hidden = true;
+        return;
+      }
+
+      const timestamp = localStorage.getItem(BACKUP_KEY);
+      const age = timestamp ? Date.now() - new Date(timestamp).getTime() : Infinity;
+      if (age <= 7 * 24 * 60 * 60 * 1000) {
+        banner.hidden = true;
+        return;
+      }
+
+      const title = document.getElementById('backupReminderTitle');
+      const message = document.getElementById('backupReminderMessage');
+      if (!timestamp) {
+        title.textContent = 'Protect your learning diary';
+        message.textContent = `You have ${notes.length} ${notes.length === 1 ? 'note' : 'notes'} and no backup yet.`;
+      } else {
+        const date = new Date(timestamp).toLocaleDateString();
+        title.textContent = 'Time for a fresh backup';
+        message.textContent = `Your last backup was on ${date}. Export a new copy to keep your diary safe.`;
+      }
+      banner.hidden = false;
+    } catch (error) {
+      console.warn('Could not update backup reminder:', error);
+    }
+  }
+
+  function initBackupReminder() {
+    document.getElementById('btnReminderExport')?.addEventListener('click', async () => {
+      const button = document.getElementById('btnReminderExport');
+      button.disabled = true;
+      try {
+        await Backup.exportBackup();
+      } finally {
+        button.disabled = false;
+        updateBackupReminder();
+      }
+    });
   }
 
   /* ── Public API ──────────────────────────────────────────── */
@@ -354,6 +402,8 @@ const UI = (() => {
     initPersistBtn,
     recordBackup,
     updateLastBackupLabel,
+    updateBackupReminder,
+    initBackupReminder,
   };
 
 })();

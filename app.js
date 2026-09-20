@@ -50,12 +50,14 @@
   /* ── 9. Wire settings page ──────────────────────────────── */
   UI.initPersistBtn();
   UI.updateLastBackupLabel();
+  if (typeof UI.initBackupReminder === 'function') UI.initBackupReminder();
   GeminiAI.init();
 
   /* ── 10. Set default filters and load diary ─────────────── */
   Dashboard.setDefaultFilters();
   await Categories.populateFilterDropdown();
   await Dashboard.refresh();
+  if (typeof UI.updateBackupReminder === 'function') await UI.updateBackupReminder();
 
   /* ── 11. Request persistent storage (silent) ────────────── */
   if (navigator.storage && navigator.storage.persist) {

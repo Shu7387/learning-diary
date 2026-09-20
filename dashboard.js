@@ -77,7 +77,7 @@ const Dashboard = (() => {
       ]);
       _populateYearFilter();
       _render();
-      UI.updateBackupReminder();
+      if (typeof UI.updateBackupReminder === 'function') UI.updateBackupReminder();
     } catch (err) {
       document.getElementById('diaryContent').innerHTML =
         `<div class="error-banner">Failed to load notes: ${UI.escapeHtml(err.message)}</div>`;
