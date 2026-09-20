@@ -193,7 +193,11 @@ const GeminiAI = (() => {
               headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
               body: JSON.stringify({
                 contents: [{ parts: [{ text: buildPrompt(action, category, note.content) }] }],
-                generationConfig: { temperature: action === 'rewrite' ? 0.45 : 0.25, maxOutputTokens: action === 'explain' ? 2400 : 1800 },
+                // Keep the limit high enough for complete explanations, rewrites, and summaries.
+                generationConfig: {
+                  temperature: action === 'rewrite' ? 0.45 : 0.25,
+                  maxOutputTokens: 8192,
+                },
               }),
             });
             const payload = await response.json();
@@ -202,8 +206,31 @@ const GeminiAI = (() => {
               error.retryable = [429, 500, 502, 503, 504].includes(response.status) || /high demand|overload|temporar/i.test(error.message);
               throw error;
             }
-            const text = payload.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('').trim();
+            let text = payload.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('').trim();
             if (!text) throw new Error('Gemini returned an empty response.');
+
+            // If Gemini stopped only because it reached the output limit, ask it
+            // to continue from the exact stopping point instead of losing content.
+            if (payload.candidates?.[0]?.finishReason === 'MAX_TOKENS') {
+              setPanel(labels[action], 'Gemini is finishing the response…');
+              const continuation = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+                body: JSON.stringify({
+                  contents: [
+                    { role: 'user', parts: [{ text: buildPrompt(action, category, note.content) }] },
+                    { role: 'model', parts: [{ text }] },
+                    { role: 'user', parts: [{ text: 'Continue from exactly where you stopped. Do not repeat anything. Complete the answer fully.' }] },
+                  ],
+                  generationConfig: { temperature: 0.2, maxOutputTokens: 8192 },
+                }),
+              });
+              const continuationPayload = await continuation.json();
+              if (continuation.ok) {
+                const continuationText = continuationPayload.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('').trim();
+                if (continuationText) text += `\n\n${continuationText}`;
+              }
+            }
             setPanel(labels[action], `Generated with ${model}.`, text, true);
             const useButton = document.getElementById('btnUseAi');
             if (action === 'rewrite' && useButton) {
