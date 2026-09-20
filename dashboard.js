@@ -13,6 +13,59 @@ const Dashboard = (() => {
   let _catLookup   = {};
   let _currentPage = 1;
   let _searchTimer = null;
+  let _weekStart   = _startOfWeek(new Date());
+  let _weeklyReviewEnabled = false;
+
+  function _startOfWeek(date) {
+    const result = new Date(date);
+    result.setHours(0, 0, 0, 0);
+    const day = result.getDay();
+    result.setDate(result.getDate() - (day === 0 ? 6 : day - 1));
+    return result;
+  }
+
+  function _toISO(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  function _weekEnd() {
+    const end = new Date(_weekStart);
+    end.setDate(end.getDate() + 6);
+    return end;
+  }
+
+  function _isCurrentWeek() {
+    return _toISO(_weekStart) === _toISO(_startOfWeek(new Date()));
+  }
+
+  function _formatWeekLabel() {
+    const end = _weekEnd();
+    const startLabel = UI.formatDateShort(_toISO(_weekStart));
+    const endLabel = UI.formatDateLong(_toISO(end));
+    return `${_isCurrentWeek() ? 'This week · ' : ''}${startLabel} – ${endLabel}`;
+  }
+
+  function _renderWeekControls() {
+    const label = document.getElementById('weekReviewLabel');
+    const next = document.getElementById('btnNextWeek');
+    const bar = document.getElementById('weekReviewBar');
+    if (label) label.textContent = _formatWeekLabel();
+    if (next) next.disabled = _isCurrentWeek();
+    if (bar) bar.hidden = !_weeklyReviewEnabled;
+  }
+
+  function _changeWeek(offset) {
+    const next = new Date(_weekStart);
+    next.setDate(next.getDate() + offset * 7);
+    if (offset > 0 && next > _startOfWeek(new Date())) return;
+    _weekStart = next;
+    _currentPage = 1;
+    _renderWeekControls();
+    _render();
+  }
 
   /* ── Load & refresh ──────────────────────────────────────── */
 
@@ -24,6 +77,7 @@ const Dashboard = (() => {
       ]);
       _populateYearFilter();
       _render();
+      UI.updateBackupReminder();
     } catch (err) {
       document.getElementById('diaryContent').innerHTML =
         `<div class="error-banner">Failed to load notes: ${UI.escapeHtml(err.message)}</div>`;
@@ -57,6 +111,13 @@ const Dashboard = (() => {
     const query    = document.getElementById('searchInput').value.trim().toLowerCase();
 
     let notes = [..._allNotes];
+
+    if (_weeklyReviewEnabled) {
+      // Weekly review filter: Monday through Sunday.
+      const weekStart = _toISO(_weekStart);
+      const weekEnd = _toISO(_weekEnd());
+      notes = notes.filter(n => n.date >= weekStart && n.date <= weekEnd);
+    }
 
     // 1. Month/year filter
     if (year || month !== '') {
@@ -139,7 +200,8 @@ const Dashboard = (() => {
       const hasFilters = document.getElementById('filterMonth').value ||
                          document.getElementById('filterYear').value  ||
                          document.getElementById('filterCategory').value ||
-                         document.getElementById('searchInput').value.trim();
+                         document.getElementById('searchInput').value.trim() ||
+                         (_weeklyReviewEnabled && !_isCurrentWeek());
 
       container.innerHTML = hasFilters
         ? `<div class="empty-state">
@@ -348,6 +410,30 @@ const Dashboard = (() => {
   /* ── Filter/search event wiring ──────────────────────────── */
 
   function initFilters() {
+    document.getElementById('toggleWeeklyReview').addEventListener('change', event => {
+      _weeklyReviewEnabled = event.target.checked;
+      _currentPage = 1;
+      if (_weeklyReviewEnabled) {
+        document.getElementById('filterMonth').value = '';
+        document.getElementById('filterYear').value = '';
+      } else {
+        const now = new Date();
+        document.getElementById('filterMonth').value = String(now.getMonth());
+        document.getElementById('filterYear').value = String(now.getFullYear());
+      }
+      _renderWeekControls();
+      _render();
+    });
+
+    document.getElementById('btnPreviousWeek').addEventListener('click', () => _changeWeek(-1));
+    document.getElementById('btnNextWeek').addEventListener('click', () => _changeWeek(1));
+    document.getElementById('btnCurrentWeek').addEventListener('click', () => {
+      _weekStart = _startOfWeek(new Date());
+      _currentPage = 1;
+      _renderWeekControls();
+      _render();
+    });
+
     // Month/year/category filters — immediate re-render
     ['filterMonth', 'filterYear', 'filterCategory'].forEach(id => {
       document.getElementById(id).addEventListener('change', () => {
@@ -376,9 +462,11 @@ const Dashboard = (() => {
   /* ── Default filters ─────────────────────────────────────── */
 
   function setDefaultFilters() {
+    _weekStart = _startOfWeek(new Date());
     const now = new Date();
     document.getElementById('filterMonth').value = String(now.getMonth());
     document.getElementById('filterYear').value  = String(now.getFullYear());
+    _renderWeekControls();
   }
 
   /* ── Public API ──────────────────────────────────────────── */

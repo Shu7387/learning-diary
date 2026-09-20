@@ -38,11 +38,35 @@
       </div>
     </header>
 
+    <aside class="backup-reminder" id="backupReminder" hidden aria-live="polite">
+      <div class="backup-reminder-icon" aria-hidden="true">↥</div>
+      <div class="backup-reminder-copy">
+        <strong id="backupReminderTitle">Protect your learning diary</strong>
+        <span id="backupReminderMessage">Export a backup to keep your notes safe.</span>
+      </div>
+      <button class="btn btn-primary" id="btnReminderExport" type="button">Export Backup</button>
+    </aside>
+
     <!-- Page Container -->
     <main class="page-container" id="pageContainer">
 
       <!-- ── PAGE: DIARY ───────────────────────────────── -->
       <section class="page active" id="page-diary" aria-label="Diary">
+
+        <label class="weekly-review-toggle">
+          <input type="checkbox" id="toggleWeeklyReview" />
+          <span>Weekly review</span>
+        </label>
+
+        <div class="week-review-bar" id="weekReviewBar" aria-label="Weekly review navigation" hidden>
+          <button class="week-nav-btn" id="btnPreviousWeek" type="button" aria-label="Previous week">‹</button>
+          <div class="week-review-label">
+            <span class="week-review-kicker">Weekly review</span>
+            <strong id="weekReviewLabel">This week</strong>
+          </div>
+          <button class="btn btn-ghost week-today-btn" id="btnCurrentWeek" type="button">Current week</button>
+          <button class="week-nav-btn" id="btnNextWeek" type="button" aria-label="Next week">›</button>
+        </div>
 
         <!-- Toolbar -->
         <div class="diary-toolbar">
