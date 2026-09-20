@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Learning Diary</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════
+       APP SHELL
+  ══════════════════════════════════════════════════════ -->
+  <div id="app">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="header-brand">
+          <span class="header-icon">📖</span>
+          <span class="header-title">Learning Diary</span>
+        </div>
+        <nav class="header-nav" role="navigation" aria-label="Main navigation">
+          <button class="nav-btn active" data-page="diary" aria-current="page">Diary</button>
+          <button class="nav-btn" data-page="categories">Categories</button>
+          <button class="nav-btn" data-page="settings">Settings</button>
+        </nav>
+        <div class="header-actions">
+          <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">
+            <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Container -->
+    <main class="page-container" id="pageContainer">
+
+      <!-- ── PAGE: DIARY ───────────────────────────────── -->
+      <section class="page active" id="page-diary" aria-label="Diary">
+
+        <!-- Toolbar -->
+        <div class="diary-toolbar">
+          <div class="toolbar-filters">
+            <select class="filter-select" id="filterMonth" aria-label="Filter by month">
+              <option value="">All Months</option>
+              <option value="0">January</option>
+              <option value="1">February</option>
+              <option value="2">March</option>
+              <option value="3">April</option>
+              <option value="4">May</option>
+              <option value="5">June</option>
+              <option value="6">July</option>
+              <option value="7">August</option>
+              <option value="8">September</option>
+              <option value="9">October</option>
+              <option value="10">November</option>
+              <option value="11">December</option>
+            </select>
+            <select class="filter-select" id="filterYear" aria-label="Filter by year">
+              <option value="">All Years</option>
+            </select>
+            <select class="filter-select" id="filterCategory" aria-label="Filter by category">
+              <option value="">All Categories</option>
+            </select>
+          </div>
+          <div class="toolbar-search">
+            <span class="search-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </span>
+            <input type="search" class="search-input" id="searchInput" placeholder="Search what you learned…" aria-label="Search notes" />
+          </div>
+          <div class="toolbar-actions">
+            <button class="btn btn-secondary" id="btnAddCategory">+ Category</button>
+            <button class="btn btn-primary" id="btnAddNote">+ Add Note</button>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="diary-summary" id="diarySummary" aria-live="polite"></div>
+
+        <!-- Notes Table / Cards -->
+        <div class="diary-content" id="diaryContent" aria-live="polite" aria-label="Notes list"></div>
+
+        <!-- Pagination -->
+        <div class="pagination-wrap" id="paginationWrap"></div>
+
+      </section>
+
+      <!-- ── PAGE: CATEGORIES ──────────────────────────── -->
+      <section class="page" id="page-categories" aria-label="Categories" hidden>
+
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Categories</h1>
+            <p class="page-subtitle">Organise your learning topics</p>
+          </div>
+          <button class="btn btn-primary" id="btnAddCategoryPage">+ Add Category</button>
+        </div>
+
+        <div id="categoriesContent" aria-live="polite"></div>
+
+      </section>
+
+      <!-- ── PAGE: SETTINGS ────────────────────────────── -->
+      <section class="page" id="page-settings" aria-label="Settings" hidden>
+
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Settings</h1>
+            <p class="page-subtitle">Data management and preferences</p>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+
+          <div class="settings-section">
+            <h2 class="settings-section-title">Data</h2>
+            <div class="settings-card">
+              <div class="settings-item">
+                <div class="settings-item-info">
+                  <strong>Export Backup</strong>
+                  <span>Download all your notes, categories and images as a backup file.</span>
+                </div>
+                <button class="btn btn-secondary" id="btnExport">Export Backup</button>
+              </div>
+              <div class="settings-divider"></div>
+              <div class="settings-item">
+                <div class="settings-item-info">
+                  <strong>Import Backup</strong>
+                  <span>Restore data from a previously exported backup file.</span>
+                </div>
+                <button class="btn btn-secondary" id="btnImport">Import Backup</button>
+                <input type="file" id="importFileInput" accept=".json,.zip" hidden aria-hidden="true" />
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h2 class="settings-section-title">Preferences</h2>
+            <div class="settings-card">
+              <div class="settings-item">
+                <div class="settings-item-info">
+                  <strong>Theme</strong>
+                  <span>Choose between light and dark mode.</span>
+                </div>
+                <div class="theme-toggle-group" role="group" aria-label="Theme">
+                  <button class="theme-option" data-theme-val="light" id="themeLight">Light</button>
+                  <button class="theme-option active" data-theme-val="dark" id="themeDark">Dark</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h2 class="settings-section-title">Gemini AI</h2>
+            <div class="settings-card">
+              <div class="settings-item ai-settings-item">
+                <div class="settings-item-info">
+                  <strong>Gemini API key</strong>
+                  <span>Used only in this browser for Explain, Rewrite and Summarise.</span>
+                </div>
+                <div class="ai-key-controls">
+                  <input class="form-input ai-key-input" id="geminiApiKey" type="password" autocomplete="off" placeholder="Paste your Gemini API key" aria-label="Gemini API key" />
+                  <div class="ai-key-actions">
+                    <button class="btn btn-secondary" id="btnSaveGeminiKey">Save Key</button>
+                    <button class="btn btn-ghost" id="btnClearGeminiKey">Clear</button>
+                  </div>
+                </div>
+              </div>
+              <p class="settings-note">Get a key from Google AI Studio. Do not use a key with unrestricted access on a public website.</p>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h2 class="settings-section-title">Storage</h2>
+            <div class="settings-card">
+              <div class="settings-item">
+                <div class="settings-item-info">
+                  <strong>Persistent Storage</strong>
+                  <span id="storageStatus">Checking browser storage permissions…</span>
+                </div>
+                <button class="btn btn-secondary" id="btnRequestPersist">Request Persist</button>
+              </div>
+              <div class="settings-divider"></div>
+              <div class="settings-item">
+                <div class="settings-item-info">
+                  <strong>Last Backup</strong>
+                  <span id="lastBackupTime">No backup recorded.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h2 class="settings-section-title">About</h2>
+            <div class="settings-card">
+              <div class="settings-item about-item">
+                <span class="about-icon">📖</span>
+                <div class="settings-item-info">
+                  <strong>Learning Diary</strong>
+                  <span>Version 1.0 — Record what you learn, find it later.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       MODALS
+  ══════════════════════════════════════════════════════ -->
+
+  <!-- Note Modal -->
+  <div class="modal-overlay" id="modalNote" role="dialog" aria-modal="true" aria-labelledby="modalNoteTitle" hidden>
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalNoteTitle">Add Note</h2>
+        <button class="modal-close" data-close="modalNote" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="noteForm" novalidate>
+          <input type="hidden" id="noteId" />
+
+          <div class="form-row form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="noteDate">Date</label>
+              <input type="date" class="form-input" id="noteDate" required aria-required="true" />
+              <span class="form-error" id="noteDateError" role="alert"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="noteCategory">Category</label>
+              <select class="form-input" id="noteCategory" required aria-required="true">
+                <option value="">Select a category…</option>
+              </select>
+              <span class="form-error" id="noteCategoryError" role="alert"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="noteContent">What did you learn?</label>
+            <div class="editor-toolbar" role="toolbar" aria-label="Note formatting">
+              <button type="button" class="editor-tool" data-command="bold" title="Bold"><strong>B</strong></button>
+              <button type="button" class="editor-tool" data-command="italic" title="Italic"><em>I</em></button>
+              <button type="button" class="editor-tool" data-command="underline" title="Underline"><u>U</u></button>
+              <select class="editor-size" id="noteFontSize" aria-label="Text size" title="Text size">
+                <option value="3">Normal</option>
+                <option value="2">Small</option>
+                <option value="4">Large</option>
+                <option value="5">Huge</option>
+              </select>
+              <button type="button" class="editor-tool editor-code-tool" data-command="code" title="Code block">&lt;/&gt;</button>
+              <div class="editor-color-group" title="Text colour">
+                <span class="editor-color-label">A</span>
+                <div class="editor-color-palette" role="group" aria-label="Text colour">
+                  <button type="button" class="color-swatch" data-color="#12162E" style="--swatch:#12162E" aria-label="Black"></button>
+                  <button type="button" class="color-swatch" data-color="#D92D20" style="--swatch:#D92D20" aria-label="Red"></button>
+                  <button type="button" class="color-swatch" data-color="#2563EB" style="--swatch:#2563EB" aria-label="Blue"></button>
+                  <button type="button" class="color-swatch" data-color="#16803C" style="--swatch:#16803C" aria-label="Green"></button>
+                  <button type="button" class="color-swatch" data-color="#7C3AED" style="--swatch:#7C3AED" aria-label="Purple"></button>
+                  <button type="button" class="color-swatch" data-color="#D97706" style="--swatch:#D97706" aria-label="Orange"></button>
+                </div>
+                <input type="color" id="noteTextColor" value="#4F6EF7" aria-label="Custom text colour" />
+              </div>
+            </div>
+            <div class="rich-editor" id="noteContentEditor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="What did you learn?" data-placeholder="Write what you learned today…"></div>
+            <textarea id="noteContent" hidden aria-hidden="true"></textarea>
+            <span class="form-error" id="noteContentError" role="alert"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Images <span class="form-optional">(optional)</span></label>
+            <div class="image-upload-zone" id="imageUploadZone">
+              <input type="file" id="imageFileInput" accept="image/*" multiple hidden aria-hidden="true" />
+              <button type="button" class="image-add-btn" id="imageAddBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Add Images
+              </button>
+            </div>
+            <div class="image-preview-grid" id="imagePreviewGrid"></div>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close="modalNote">Cancel</button>
+        <button class="btn btn-primary" id="btnSaveNote">Save Note</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Note Modal -->
+  <div class="modal-overlay" id="modalViewNote" role="dialog" aria-modal="true" aria-labelledby="viewNoteTitle" hidden>
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <div class="view-note-meta">
+          <span class="view-note-category-badge" id="viewNoteCategory"></span>
+          <span class="view-note-date" id="viewNoteDate"></span>
+        </div>
+        <button class="modal-close" data-close="modalViewNote" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h2 class="view-note-title" id="viewNoteTitle" hidden>Note</h2>
+        <div class="view-note-content" id="viewNoteContent"></div>
+        <div class="view-note-images" id="viewNoteImages"></div>
+        <div class="ai-actions" aria-label="Gemini AI actions">
+          <span class="ai-actions-label">Gemini AI</span>
+          <button class="btn btn-ai" data-ai-action="explain">Explain</button>
+          <button class="btn btn-ai" data-ai-action="rewrite">Rewrite</button>
+          <button class="btn btn-ai" data-ai-action="summarise">Summarise</button>
+        </div>
+        <section class="ai-panel" id="aiPanel" hidden aria-live="polite">
+          <div class="ai-panel-header">
+            <strong id="aiPanelTitle">Gemini response</strong>
+            <div class="ai-panel-actions">
+              <button class="btn btn-ghost btn-copy-ai" id="btnCopyAi" type="button" hidden>Copy</button>
+              <button class="btn btn-ai btn-use-ai" id="btnUseAi" type="button" hidden>Use in note</button>
+            </div>
+          </div>
+          <div class="ai-panel-status" id="aiPanelStatus"></div>
+          <div class="ai-panel-content" id="aiPanelContent"></div>
+        </section>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close="modalViewNote">Close</button>
+        <button class="btn btn-secondary" id="btnEditFromView">Edit</button>
+        <button class="btn btn-danger" id="btnDeleteFromView">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Modal -->
+  <div class="modal-overlay" id="modalCategory" role="dialog" aria-modal="true" aria-labelledby="modalCategoryTitle" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalCategoryTitle">Add Category</h2>
+        <button class="modal-close" data-close="modalCategory" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="categoryForm" novalidate>
+          <input type="hidden" id="categoryId" />
+          <div class="form-group">
+            <label class="form-label" for="categoryName">Category Name</label>
+            <input type="text" class="form-input" id="categoryName" placeholder="e.g. MongoDB" maxlength="80" required aria-required="true" />
+            <span class="form-error" id="categoryNameError" role="alert"></span>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close="modalCategory">Cancel</button>
+        <button class="btn btn-primary" id="btnSaveCategory">Save Category</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-overlay" id="modalConfirm" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" hidden>
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 class="modal-title" id="confirmTitle">Confirm</h2>
+      </div>
+      <div class="modal-body">
+        <p class="confirm-message" id="confirmMessage"></p>
+        <p class="confirm-sub" id="confirmSub"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="btnConfirmCancel">Cancel</button>
+        <button class="btn btn-danger" id="btnConfirmOk">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import Preview Modal -->
+  <div class="modal-overlay" id="modalImport" role="dialog" aria-modal="true" aria-labelledby="importTitle" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="importTitle">Import Backup</h2>
+        <button class="modal-close" data-close="modalImport" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="import-summary" id="importSummary"></div>
+        <div class="import-warning">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Your current data will be replaced. Export a backup first if needed.
+        </div>
+        <button class="btn btn-secondary btn-block" id="btnExportBeforeImport">Export Current Data First</button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-close="modalImport">Cancel</button>
+        <button class="btn btn-primary" id="btnConfirmImport">Import and Replace</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox-overlay" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview" hidden>
+    <button class="lightbox-close" id="lightboxClose" aria-label="Close image">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous image">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="lightbox-content">
+      <img class="lightbox-img" id="lightboxImg" src="" alt="Full size preview" />
+      <div class="lightbox-caption" id="lightboxCaption"></div>
+    </div>
+    <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next image">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="false"></div>
+
+  <!-- Scripts (load order matters) -->
+  <script src="db.js"></script>
+  <script src="ui.js"></script>
+  <script src="images.js"></script>
+  <script src="categories.js"></script>
+  <script src="notes.js"></script>
+  <script src="dashboard.js"></script>
+  <script src="backup.js"></script>
+  <script src="ai.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
